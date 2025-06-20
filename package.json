@@ -22,6 +22,7 @@
     "eslint-config-expo": "~9.2.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.5.0",
+    "eslint-plugin-react-native": "^5.0.0",
     "prettier": "^3.5.3",
     "typescript": "~5.8.3"
   },
