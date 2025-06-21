@@ -8,7 +8,7 @@ type Prop = {
   isCompleted?: boolean;
 };
 
-export default function ShoppingListItem({ name, isCompleted }: Prop) {
+export function ShoppingListItem({ name, isCompleted }: Prop) {
   const handleDelete = () => {
     Alert.alert(
       `Are you sure you want to delete ${name}?`,
