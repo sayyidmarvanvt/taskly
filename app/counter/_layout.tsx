@@ -1,7 +1,7 @@
 import { Link, Stack } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { theme } from "../../theme";
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 
 export default function Layout() {
   return (
@@ -12,7 +12,9 @@ export default function Layout() {
           title: "Counter",
           headerRight: () => (
             <Link href={"counter/history"} asChild>
-              <Pressable hitSlop={20} style={{ backgroundColor: "white" }}>
+              <Pressable hitSlop={20} 
+              style={{ backgroundColor: "white" }}>
+                {/*hitslop give large area for touch , give background white because some time icon get hidden*/}
                 <MaterialIcons
                   name="history"
                   size={28}
