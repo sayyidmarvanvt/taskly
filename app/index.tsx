@@ -1,4 +1,11 @@
-import { ScrollView, StyleSheet, TextInput, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  FlatList,
+  View,
+  Text,
+} from "react-native";
 import { theme } from "../theme";
 import { ShoppingListItem } from "../components/ShoppingListItem";
 import { useState } from "react";
@@ -9,16 +16,9 @@ type ShoppingListItemType = {
   isCompleted: boolean;
 };
 
-const initialList: ShoppingListItemType[] = [
-  { id: "1", name: "Coffee", isCompleted: false },
-  { id: "2", name: "Tea", isCompleted: false },
-  { id: "3", name: "Sugar", isCompleted: true },
-];
-
 export default function App() {
   const [value, setValue] = useState<string>("");
-  const [shoppingList, setShoppingList] =
-    useState<ShoppingListItemType[]>(initialList);
+  const [shoppingList, setShoppingList] = useState<ShoppingListItemType[]>([]);
 
   const handleSubmit = () => {
     if (value) {
@@ -35,29 +35,30 @@ export default function App() {
     }
   };
   return (
-    <ScrollView
+    <FlatList
+      data={shoppingList}
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
       stickyHeaderIndices={[0]}
-    >
-      <TextInput
-        placeholder="E.g. Coffee"
-        style={styles.textInput}
-        value={value}
-        onChangeText={setValue}
-        onSubmitEditing={handleSubmit}
-        returnKeyType="done"
-      />
-      {/* <ScrollView> */}
-        {shoppingList.map((item) => (
-          <ShoppingListItem
-            key={item.id}
-            name={item.name}
-            isCompleted={item.isCompleted}
-          />
-        ))}
-      {/* </ScrollView> */}
-    </ScrollView>
+      ListEmptyComponent={
+        <View style={styles.listEmptyContainer}>
+          <Text>Your shopping list is empty</Text>
+        </View>
+      }
+      renderItem={({ item }) => (
+        <ShoppingListItem name={item.name} isCompleted={item.isCompleted} />
+      )}
+      ListHeaderComponent={
+        <TextInput
+          placeholder="E.g. Coffee"
+          style={styles.textInput}
+          value={value}
+          onChangeText={setValue}
+          onSubmitEditing={handleSubmit}
+          returnKeyType="done"
+        />
+      }
+    />
   );
 }
 
@@ -69,6 +70,11 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingBottom: 24,
+  },
+  listEmptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 18,
   },
   textInput: {
     borderColor: theme.colorLightGrey,
