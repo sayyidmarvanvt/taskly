@@ -1,35 +1,50 @@
-import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  Pressable,
+} from "react-native";
 import { theme } from "../theme";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 
-type Prop = {
+type Props = {
   name?: string;
   isCompleted?: boolean;
+  onDelete: () => void;
+  onToggleComplete: () => void;
 };
 
-export function ShoppingListItem({ name, isCompleted }: Prop) {
+export function ShoppingListItem({
+  name,
+  isCompleted,
+  onDelete,
+  onToggleComplete,
+}: Props) {
   const handleDelete = () => {
     Alert.alert(
       `Are you sure you want to delete ${name}?`,
-      "it will be gone for good",
+      "It will be gone for good",
       [
         {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => console.log("Delete Pressed"),
+          text: "Yes",
+          onPress: () => onDelete(),
           style: "destructive",
         },
-      ],
+        { text: "Cancel", style: "cancel" },
+      ]
     );
   };
+
   return (
-    <View
-      style={[styles.itemContainer, isCompleted && styles.completedContainer]}
+    <Pressable
+      style={[
+        styles.itemContainer,
+        isCompleted ? styles.completedContainer : undefined,
+      ]}
+      onPress={onToggleComplete}
     >
       <View style={styles.row}>
         <Entypo
@@ -37,18 +52,23 @@ export function ShoppingListItem({ name, isCompleted }: Prop) {
           size={24}
           color={isCompleted ? theme.colorGrey : theme.colorCeruleanBlue}
         />
-        <Text style={[styles.itemText, isCompleted && styles.completedText]}>
+        <Text
+          style={[
+            styles.itemText,
+            isCompleted ? styles.completedText : undefined,
+          ]}
+        >
           {name}
         </Text>
       </View>
-      <TouchableOpacity onPress={handleDelete} activeOpacity={0.8}>
+      <TouchableOpacity hitSlop={20} onPress={handleDelete}>
         <AntDesign
           name="closecircle"
           size={24}
           color={isCompleted ? theme.colorGrey : theme.colorRed}
         />
       </TouchableOpacity>
-    </View>
+    </Pressable>
   );
 }
 
@@ -70,11 +90,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    gap: 8,
   },
   itemText: {
     fontSize: 18,
     fontWeight: "200",
-    marginLeft: 8,
+    flex: 1,
   },
   completedText: {
     color: theme.colorGrey,
