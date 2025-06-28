@@ -28,12 +28,12 @@ export function ShoppingListItem({
       `Are you sure you want to delete ${name}?`,
       "It will be gone for good",
       [
+        { text: "Cancel", style: "cancel" },
         {
-          text: "Yes",
+          text: "Delete",
           onPress: () => onDelete(),
           style: "destructive",
         },
-        { text: "Cancel", style: "cancel" },
       ]
     );
   };
