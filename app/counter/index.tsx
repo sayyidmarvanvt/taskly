@@ -41,7 +41,6 @@ export default function CounterScreen() {
     const init = async () => {
       const value = await getFromStorage(countdownStorageKey);
       setCountdownState(value);
-      setIsLoading(false);
     };
     init();
   }, []);
@@ -80,22 +79,20 @@ export default function CounterScreen() {
    * Schedules a push notification to be sent at a specific time and updates the app's state and storage accordingly.
    */
   const scheduleNotification = async () => {
-    // Variable to store the ID of the scheduled notification
     let pushNotificationId;
 
-    // Register for push notifications and get the result
     const result = await registerForPushNotificationsAsync();
 
-    // Check if the user has granted permission for push notifications
     if (result === "granted") {
-      // Schedule a notification with the title "Car wash overdue!" to be sent after a certain time
       pushNotificationId = await Notifications.scheduleNotificationAsync({
         content: {
-          title: "Car wash overdue!",
+          title: "Task Overdue Reminder",
+          body: "Don't forget to complete the task! It's past due.",
         },
         trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
           seconds: frequency / 1000,
-        } as Notifications.NotificationTriggerInput,
+        },
       });
     } else {
       Alert.alert(
@@ -109,10 +106,10 @@ export default function CounterScreen() {
       await Notifications.cancelScheduledNotificationAsync(
         countdownState.currentNotificationId
       );
-    } 
+    }
 
     const newCountdownState: PersistedCountdownState = {
-      currentNotificationId: pushNotificationId, // ID of the newly scheduled notification
+      currentNotificationId: pushNotificationId,
       completedAtTimestamps: countdownState
         ? [Date.now(), ...countdownState.completedAtTimestamps] // Add the current timestamp to the list of completed timestamps
         : [Date.now()], // If no previous state, create a new list with the current timestamp
