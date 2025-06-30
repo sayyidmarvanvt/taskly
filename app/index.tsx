@@ -4,17 +4,17 @@ import {
   FlatList,
   View,
   Text,
-  LayoutAnimation,
+  Animated,
 } from "react-native";
 import { theme } from "../theme";
-import { ShoppingListItem } from "../components/ShoppingListItem";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getFromStorage, saveToStorage } from "../utils/storage";
 import * as Haptics from "expo-haptics";
+import { AnimatedShoppingListItem } from "../components/AnimatedShoppingListItem";
 
 const storageKey = "shopping-list";
 
-type ShoppingListItemType = {
+export type ShoppingListItemType = {
   id: string;
   name: string;
   completedAtTimestamp?: number;
@@ -24,18 +24,31 @@ type ShoppingListItemType = {
 export default function App() {
   const [value, setValue] = useState<string>("");
   const [shoppingList, setShoppingList] = useState<ShoppingListItemType[]>([]);
+  const listOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const fetchInitial = async () => {
       const data = await getFromStorage(storageKey);
       if (data) {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setShoppingList(data);
+        // Animate the entire list in
+        Animated.timing(listOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        // If no data, still show the list
+        Animated.timing(listOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }).start();
       }
     };
 
     fetchInitial();
-  }, []);
+  }, [listOpacity]);
 
   const handleSubmit = () => {
     if (value) {
@@ -47,20 +60,20 @@ export default function App() {
         },
         ...shoppingList,
       ];
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
       setShoppingList(newShoppingList);
-      saveToStorage(storageKey, shoppingList);
+      saveToStorage(storageKey, newShoppingList);
       setValue("");
     }
   };
 
   const handleDelete = (id: string) => {
     const newShoppingList = shoppingList.filter((item) => item.id !== id);
+    setShoppingList(newShoppingList);
     saveToStorage(storageKey, newShoppingList);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShoppingList(newShoppingList);
   };
+
   const handleToggleComplete = (id: string) => {
     const newShoppingList = shoppingList.map((item) => {
       if (item.id === id) {
@@ -80,42 +93,44 @@ export default function App() {
         return item;
       }
     });
-    saveToStorage(storageKey, newShoppingList);
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+
     setShoppingList(newShoppingList);
+    saveToStorage(storageKey, newShoppingList);
   };
+
   return (
-    <FlatList
-      data={orderShoppingList(shoppingList)}
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      stickyHeaderIndices={[0]}
-      ListEmptyComponent={
-        <View style={styles.listEmptyContainer}>
-          <Text>Your shopping list is empty</Text>
-        </View>
-      }
-      renderItem={({ item }) => (
-        <ShoppingListItem
-          name={item.name}
-          onDelete={() => handleDelete(item.id)}
-          onToggleComplete={() => handleToggleComplete(item.id)}
-          isCompleted={Boolean(item.completedAtTimestamp)}
-        />
-      )}
-      ListHeaderComponent={
-        <TextInput
-          placeholder="E.g. Coffee"
-          style={styles.textInput}
-          value={value}
-          onChangeText={setValue}
-          onSubmitEditing={handleSubmit}
-          returnKeyType="done"
-        />
-      }
-    />
+    <Animated.View style={[styles.container, { opacity: listOpacity }]}>
+      <FlatList
+        data={orderShoppingList(shoppingList)}
+        contentContainerStyle={styles.contentContainer}
+        stickyHeaderIndices={[0]}
+        ListEmptyComponent={
+          <View style={styles.listEmptyContainer}>
+            <Text>Your shopping list is empty</Text>
+          </View>
+        }
+        renderItem={({ item }) => (
+          <AnimatedShoppingListItem
+            item={item}
+            onDelete={() => handleDelete(item.id)}
+            onToggleComplete={() => handleToggleComplete(item.id)}
+          />
+        )}
+        ListHeaderComponent={
+          <TextInput
+            placeholder="E.g. Coffee"
+            style={styles.textInput}
+            value={value}
+            onChangeText={setValue}
+            onSubmitEditing={handleSubmit}
+            returnKeyType="done"
+          />
+        }
+      />
+    </Animated.View>
   );
 }
+
 function orderShoppingList(shoppingList: ShoppingListItemType[]) {
   return shoppingList.sort((item1, item2) => {
     if (item1.completedAtTimestamp && item2.completedAtTimestamp) {
@@ -136,6 +151,7 @@ function orderShoppingList(shoppingList: ShoppingListItemType[]) {
     return 0;
   });
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
