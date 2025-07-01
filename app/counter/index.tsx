@@ -62,9 +62,9 @@ export default function CounterScreen() {
 
       // Add loading state here because there is an async fetching happening only when there is already a timestamp in storage.
       // This loading state is added to account for the delay in fetching the data.
-      if (lastCompletedAt) {
+   
         setIsLoading(false);
-      }
+      
       // Check if the countdown is overdue
       const isOverdue = isBefore(timestamp, Date.now());
 
