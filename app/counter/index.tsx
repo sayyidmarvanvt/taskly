@@ -5,16 +5,20 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  useWindowDimensions,
 } from "react-native";
 import { theme } from "../../theme";
 import { registerForPushNotificationsAsync } from "../../utils/registerForPushNotificationsAsync";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Duration, intervalToDuration, isBefore } from "date-fns";
 import { TimeSegment } from "../../components/TimeSegment";
 import { getFromStorage, saveToStorage } from "../../utils/storage";
 import * as Notifications from "expo-notifications";
+import * as Haptics from "expo-haptics";
+import ConfettiCannon from "react-native-confetti-cannon";
 
-const frequency = 10 * 1000;
+// Every 1 minutes
+const frequency = 60 * 1000;
 
 export const countdownStorageKey = "taskly-countdown";
 
@@ -29,6 +33,8 @@ type CountdownStatus = {
 };
 
 export default function CounterScreen() {
+  const { width } = useWindowDimensions(); // Adapt to landscape and portrait easily
+  const confettiRef = useRef<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [countdownState, setCountdownState] =
     useState<PersistedCountdownState>();
@@ -79,6 +85,8 @@ export default function CounterScreen() {
    * Schedules a push notification to be sent at a specific time and updates the app's state and storage accordingly.
    */
   const scheduleNotification = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    confettiRef?.current?.start();
     let pushNotificationId;
 
     const result = await registerForPushNotificationsAsync();
@@ -175,6 +183,13 @@ export default function CounterScreen() {
           <Text style={styles.buttonText}>OVERDUE</Text>
         )}
       </TouchableOpacity>
+      <ConfettiCannon
+        ref={confettiRef}
+        count={50}
+        origin={{ x: width / 2, y: -30 }}
+        autoStart={false}
+        fadeOut
+      />
     </View>
   );
 }
