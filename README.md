@@ -31,7 +31,7 @@
 
 You can download and install the app here (no Expo Go needed):
 
-➡️ [Download Taskly APK](https://expo.dev/accounts/sayyidmarvan/projects/taskly/builds/5717f6b1-6bb4-4de5-8292-0a334c9abd90)
+➡️ [Download Taskly APK](https://expo.dev/accounts/sayyidmarvan/projects/taskly/builds/dd703e8e-e73f-4dc3-ae04-fad77cb8501d)
 
 ---
 
